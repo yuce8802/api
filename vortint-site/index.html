@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VortinT | Official Smart Space</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap');
+        body { font-family: 'Space Grotesk', sans-serif; background: #ffffff; color: #0f172a; overflow-x: hidden; }
+        
+        /* 进度条动画 */
+        .progress-bar { position: absolute; top: 0; left: 0; height: 4px; background: #2563eb; width: 0%; }
+        .modal-show .progress-bar { width: 100%; transition: width 1.5s linear; }
+
+        /* 弹窗样式 */
+        #detail-modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+        .modal-content { background: white; width: 100%; max-width: 420px; border-radius: 2rem; transform: scale(0.9); opacity: 0; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; border: 2px solid #eff6ff; }
+        .modal-show .modal-content { transform: scale(1); opacity: 1; }
+        
+        /* 悬浮按钮动画 */
+        .float-btn { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar { width: 0; background: transparent; }
+    </style>
+</head>
+<body class="bg-blue-50/20">
+
+    <div id="splash" class="fixed inset-0 bg-white z-[9999] flex items-center justify-center transition-opacity duration-700">
+        <div class="flex flex-col items-center">
+            <img src="https://res.cloudinary.com/dpr2pn5rs/image/upload/v1775785448/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260313164434_36_18_pwgssq.jpg" class="w-16 h-16 rounded-full animate-bounce mb-4 border-2 border-blue-500">
+            <span class="text-blue-600 font-bold text-sm tracking-widest uppercase animate-pulse">Loading VortinT...</span>
+        </div>
+    </div>
+
+    <div id="detail-modal" onclick="closeDetail()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="progress-bar" id="p-bar"></div>
+            <img id="m-img" src="" class="w-full aspect-square object-cover bg-blue-50">
+            <div class="p-8 text-center">
+                <h2 id="m-title" class="text-xl font-bold mb-4 text-slate-800 uppercase tracking-tighter"></h2>
+                <div class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-[10px] font-black tracking-widest uppercase animate-pulse inline-block">Connecting Store...</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[92vw] max-w-5xl bg-white/90 backdrop-blur-xl rounded-full px-6 py-3 flex justify-between items-center shadow-sm border border-blue-100">
+        <div class="flex items-center space-x-3">
+            <img src="https://res.cloudinary.com/dpr2pn5rs/image/upload/v1775785448/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260313164434_36_18_pwgssq.jpg" 
+                 onclick="adminGate()" class="h-8 w-8 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
+            <span class="text-[10px] font-black text-blue-900 uppercase tracking-tighter">VortinT™</span>
+        </div>
+        
+        <div class="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+            <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+            </span>
+            <span id="visitor-count" class="text-[9px] font-bold text-blue-800 uppercase tracking-widest">Live: 1,028</span>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 pt-24 pb-20">
+        
+        <section class="mb-10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-900/10 bg-black aspect-video relative group">
+            <video id="v-player" class="w-full h-full object-cover" autoplay muted loop playsinline></video>
+            
+            <div class="absolute top-6 left-8 z-10 flex items-center space-x-2">
+                <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md animate-pulse shadow-lg shadow-blue-500/30">HOT</span>
+                <p class="text-white/90 text-[9px] font-bold tracking-widest uppercase shadow-black">Bestsellers Showcase</p>
+            </div>
+
+            <div class="absolute bottom-6 left-8 z-10">
+                <h1 id="typed" class="text-white text-xl md:text-2xl font-bold drop-shadow-lg"></h1>
+            </div>
+
+            <div class="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent pointer-events-none"></div>
+        </section>
+
+        <div id="p-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div class="aspect-square bg-blue-50 animate-pulse rounded-[2rem]"></div>
+            <div class="aspect-square bg-blue-50 animate-pulse rounded-[2rem]"></div>
+            <div class="aspect-square bg-blue-50 animate-pulse rounded-[2rem]"></div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-8 right-8 z-[1500]">
+        <a id="service-link" 
+           href="https://wa.me/85269517551?text=Hi! I'm interested in VortinT Smart Space." 
+           target="_blank" 
+           class="float-btn bg-blue-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group relative border-2 border-white">
+            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.63 1.44h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            <span class="absolute right-16 bg-white text-blue-900 text-[10px] font-black py-2 px-4 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity border border-blue-100 uppercase tracking-widest whitespace-nowrap">WhatsApp Help</span>
+        </a>
+    </div>
+
+    <script>
+        const CFG = { 
+            TOKEN: "usk6WsQlH4X6ST2hQRk4vAz", 
+            SHEET: "dstUcVqARey53sJnMh",
+            DEFAULT_V: "https://res.cloudinary.com/dpr2pn5rs/video/upload/v1776075209/4%E6%9C%8813%E6%97%A5_1_iiorev.mp4",
+            WA_PHONE: "85269517551"
+        };
+        
+        let products = [], timer = null, clicks = 0;
+
+        async function init() {
+            document.getElementById('visitor-count').innerText = `Live: ${Math.floor(Math.random() * (1600 - 900) + 900)}`;
+
+            try {
+                const res = await fetch(`https://api.vika.cn/fusion/v1/datasheets/${CFG.SHEET}/records`, {
+                    headers: { 'Authorization': `Bearer ${CFG.TOKEN}` }
+                });
+                const { data } = await res.json();
+                products = data.records;
+
+                // 视频初始化
+                const videoUrl = products[0]?.fields['视频链接'];
+                document.getElementById('v-player').src = videoUrl || CFG.DEFAULT_V;
+
+                // 直接渲染来自数据库的图片，速度最快
+                render();
+
+                new Typed('#typed', { 
+                    strings: [
+                        'Top Rated Toy Storage.', 
+                        '7 Elastic Cords Innovation.', 
+                        'Join 10,000+ Happy Families.', 
+                        'VortinT™ Best Seller.'
+                    ], 
+                    typeSpeed: 50, backSpeed: 30, loop: true 
+                });
+
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => document.getElementById('splash').remove(), 700);
+
+            } catch (e) { 
+                console.error("Data Load Error");
+                document.getElementById('v-player').src = CFG.DEFAULT_V;
+            }
+        }
+
+        function render() {
+            const grid = document.getElementById('p-grid');
+            const displayList = products.filter(r => r.fields['标题'] !== 'SERVICE_LINK');
+            
+            grid.innerHTML = displayList.map((p, i) => {
+                const f = p.fields;
+                // 直接读取表格中的图片 URL，保证秒开
+                const img = Array.isArray(f['图片']) ? f['图片'][0].url : (f['图片'] || 'https://res.cloudinary.com/dpr2pn5rs/image/upload/v1775785448/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260313164434_36_18_pwgssq.jpg');
+                
+                // 蓝白主题 + 明显的选中悬浮效果
+                return `
+                <div class="bg-white p-2.5 rounded-[2rem] shadow-sm border-2 border-transparent hover:border-blue-400 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 active:scale-95 transition-all duration-300 cursor-pointer group" onclick="openP(${i})">
+                    <div class="overflow-hidden rounded-[1.5rem] mb-3 bg-blue-50">
+                        <img src="${img}" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <h3 class="text-[10px] font-black px-3 truncate text-slate-800 uppercase tracking-tighter group-hover:text-blue-600 transition-colors">${f['标题'] || 'VortinT Unit'}</h3>
+                </div>`;
+            }).join('');
+        }
+
+        function openP(i) {
+            // 获取商品数据，跳过可能存在的非商品记录（比如你说的 SERVICE_LINK）
+            const displayList = products.filter(r => r.fields['标题'] !== 'SERVICE_LINK');
+            const f = displayList[i].fields;
+            
+            document.getElementById('m-img').src = Array.isArray(f['图片']) ? f['图片'][0].url : f['图片'];
+            document.getElementById('m-title').innerText = f['标题'];
+            
+            const modal = document.getElementById('detail-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('modal-show'), 10);
+
+            // 更新 WhatsApp 链接：自动包含当前商品名称
+            const waMsg = encodeURIComponent(`Hi! I'm interested in the "${f['标题']}". Could you provide more details?`);
+            document.getElementById('service-link').href = `https://wa.me/${CFG.WA_PHONE}?text=${waMsg}`;
+
+            // 1.5秒自动跳转到商品链接
+            timer = setTimeout(() => {
+                if (modal.classList.contains('modal-show') && f['链接']) {
+                    window.location.href = f['链接'];
+                }
+            }, 1500);
+        }
+
+        function closeDetail() {
+            clearTimeout(timer);
+            document.getElementById('detail-modal').classList.remove('modal-show');
+            setTimeout(() => document.getElementById('detail-modal').style.display = 'none', 300);
+            
+            // 重置 WhatsApp 链接为默认通用文案
+            const defaultMsg = encodeURIComponent("Hi! I'm interested in VortinT Smart Space solutions.");
+            document.getElementById('service-link').href = `https://wa.me/${CFG.WA_PHONE}?text=${defaultMsg}`;
+        }
+
+        function adminGate() {
+            clicks++;
+            if(clicks >= 5) window.location.href = 'admin.html';
+            setTimeout(() => clicks = 0, 2000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
